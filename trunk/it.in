@@ -1,0 +1,11 @@
+f : root frame
+
+bb : f label
+    text = "Hey there"
+
+cc : f entry
+    width = 23
+
+
+: bb grid sticky = w
+: cc grid sticky = w
