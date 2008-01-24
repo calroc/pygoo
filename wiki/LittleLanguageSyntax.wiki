@@ -1,4 +1,5 @@
 #summary The syntax for the widget specification Little Language
+#labels Featured
 
 = Summary =
 {{{
