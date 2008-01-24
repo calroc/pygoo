@@ -1,0 +1,31 @@
+#summary The syntax for the widget specification Little Language
+
+= Summary =
+{{{
+widgets ::= [macros] element+
+
+element ::= widget_type [options] [element+] .
+
+options ::= equate+
+macros ::= equate+
+
+equate ::= something = something
+               -or-
+           something = "some string"
+}}}
+
+= Details =
+
+  * a widget spec consists of an optional set of *macros* and one or more child *elements*
+  * an *element* consists of:
+    * a *widget_type* (one of the Tkinter standard widgets, i.e. Text, Label, Button, etc...)
+    * an optional set of *options* for the widget.
+    * an optional set of child *elements* for the widget (this only makes sense for Frame widgets though.)
+    * a trailing dot *.*
+  * both *options* and *macros* consist of one or more *equates*
+  * *equates* are either:
+    * _thing = thing_
+    * _thing = "quoted string"_
+
+== Additionally ==
+*widget_types* are case-INsensitive;  *macros* are substituted for values of *equates* in each *element*; whitespace is not syntactically significant, you can indent your text as you like, you can even put things all on one line...
