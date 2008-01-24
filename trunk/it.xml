@@ -1,9 +1,0 @@
-<?xml version="1.0" ?>
-<frame>
-  <label text="Hey there">
-    <grid sticky="w"/>
-  </label>
-  <entry width="23">
-    <grid sticky="w"/>
-  </entry>
-</frame>
