@@ -1,6 +1,6 @@
+#!/usr/bin/env python
 from Tkinter import Tk, Frame
-from toXML import toXML
-from xml2Tkinter import realize
+from pygoo import toXML, realize
 
 
 class Form:
