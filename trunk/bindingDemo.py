@@ -1,4 +1,19 @@
 #!/usr/bin/env python
+'''
+Demonstrates how to use the auto-binding feature of the realize() function.
+
+You can include Tkinter event binding specs in a widget's description that
+point to functors in the namespace mapping you pass into realize().  The
+resulting widgets will automatically get those events bound to those
+functors.  This gives you a quick way to connect your widgets to your
+callbacks.
+
+Note that currently including these event specs, with their angle-brackets,
+in a widget spec causes ElementTree to emit invalid XML if you convert an
+ElementTree element to text.  This will be fixed in a future version.
+(If it's bothering you now, feel free to ask me to fix it sooner. -sf)
+
+'''
 from Tkinter import Tk, Frame
 from pygoo import toXML, realize
 
@@ -12,8 +27,8 @@ class Form:
             width = 20
             height = 10
 
-            <Enter> = Red
-            <Leave> = Green
+            <Enter> = RedCallback
+            <Leave> = GreenCallback
 
             sticky = nsew
             row = 1
@@ -21,14 +36,14 @@ class Form:
         .
         button
             text = Red
-            <Button-1> = Red
+            <Button-1> = RedCallback
             sticky = nsew
             row = 1
             column = 1
         .
         button
             text = Green
-            <Button-1> = Green
+            <Button-1> = GreenCallback
             sticky = nsew
             row = 2
             column = 1
@@ -42,33 +57,42 @@ class Form:
         '''
 
     def __init__(self, master):
+
+        # Create a "home" widget to build your generated widgets within.
+        # (You could also use Toplevel in lieu of Frame.)
         self.frame = Frame(master)
         self.frame.grid(sticky='nsew')
-        self._createWidgets()
 
-    def _createWidgets(self):
-        namespace = _getAttributes(self)
+        # Create a namespace dict for realize().
+        namespace = dict(
+            RedCallback = self.RedCallback,
+            GreenCallback = self.GreenCallback,
+            )
+
+        # Remember what was already in there for later.
         had = set(namespace)
 
+        # Generate the widgets.
         for widget in toXML(self.widgets):
             realize(self.frame, widget, namespace)
 
+        # Iterate over the new named widgets in the namespace and attach
+        # them to self so that the callback methods can "reach" them.
+        # (Note that we take out the original callback functors.)
         for new_thing in set(namespace) - had:
             setattr(self, new_thing, namespace[new_thing])
 
-    def Red(self, event):
+    def RedCallback(self, event):
+        '''
+        Turn the text widget red.
+        '''
         self.texty['background'] = 'red'
 
-    def Green(self, event):
+    def GreenCallback(self, event):
+        '''
+        Turn the text widget green.
+        '''
         self.texty['background'] = 'green'
-
-
-def _getAttributes(thing):
-    return dict(
-        (key, getattr(thing, key))
-        for key in dir(thing)
-        if not key.startswith('_')
-        )
 
 
 root = Tk()

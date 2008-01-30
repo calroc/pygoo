@@ -88,15 +88,15 @@ class Scanner(GenericScanner):
     def t_whitespace(self, s, begin, end):
         r'\s+ '
         pass
-        
+
     def t_op(self, s, begin, end):
-        r'[=:.]'
+        r'[=.]'
         return Token(s, self.ops[s], begin, end)
-        
+
     def t_symbol(self, s, begin, end):
         r'[^=.\s]+'
         return Token('symbol', s, begin, end)
-        
+
     def t_string(self, s, begin, end):
         r'"(.*?)(?<!\\)"'
         assert s.startswith('"') and s.endswith('"')
@@ -133,10 +133,45 @@ class AST:
             )
 
 
+class ParseError(Exception):
+    pass
+
+
 class Parser(GenericParser):
 
     def __init__(self, start='begin'):
         GenericParser.__init__(self, start)
+
+    def parse(self, tokens):
+        tokens = iter(tokens)
+        accumulator = []
+
+        for token in tokens:
+            accumulator.append(token)
+            try:
+                macros, elements = GenericParser.parse(self, accumulator)
+            except ParseError:
+                continue
+            yield macros
+            if elements:
+                yield elements[0]
+            break
+
+        accumulator = []
+        for token in tokens:
+            accumulator.append(token)
+            try:
+                macros, elements = GenericParser.parse(self, accumulator)
+            except ParseError:
+                continue
+            yield elements[0]
+            accumulator = []
+
+        if accumulator:
+            raise ParseError("Leftover tokens: %s" % accumulator)
+
+    def error(self, token):
+        raise ParseError("Syntax error at or near `%s' token" % token)
 
     def p_begin(self, args):
         '''
@@ -229,59 +264,59 @@ class Parser(GenericParser):
 #########################################################################
 
 
-class ASTsToElementTree:
+class Formatter:
 
     _GRID_SETTINGS = set('sticky row column rowspan columnspan'.split())
 
     def __init__(self, macros):
         self.macros = dict(eq.tag for eq in macros)
+        self.parent = None
 
     def convert(self, elements):
-        return [self.createElement(None, el) for el in elements]
+        for el in elements:
+            yield self.el(el)
 
-    def createElement(self, parent, el):
-        widget_type = el.tag
-        children = el.els
-        attributes = self.eqs2dict(el.eqs)
-
-        # Extract grid settings if any...
-        grid_settings = dict(
-            (key, attributes.pop(key))
-            for key in self._GRID_SETTINGS & set(attributes)
-            )
+    def el(self, node):
+        parent = self.parent
 
         if parent is None:
-            e = E(widget_type, attrib=attributes)
+            e = E(node.tag)
         else:
-            e = S(parent, widget_type, attrib=attributes)
+            e = S(parent, node.tag)
 
-        if grid_settings:
-            S(e, 'grid', attrib=grid_settings)
+        self.parent = e
+        e.ast = node
 
-        for kid in children:
-            self.createElement(e, kid)
+        for eq in node.eqs:
+            self.eq(eq)
+        for el in node.els:
+            self.el(el)
+
+        self.parent = parent
 
         return e
 
-    def eqs2dict(self, eqs):
-        '''
-        convert a list of EQs to a dict, mapping the values through the macros
-        if appropriate.
-        '''
-        if not eqs:
-            return {}
-        res = {}
-        for eq in eqs:
-            key, value = eq.tag
-            value = self.macros.get(value, value)
-            res[key] = value
-        return res
+    def eq(self, node):
+        key, value = node.tag
+        value = self.macros.get(value, value)
+
+        if key in self._GRID_SETTINGS:
+            # parent is not None, 'cause eq's outside an el are macros.
+            grid = self.parent.find('grid')
+            if grid is None:
+                grid = S(self.parent, 'grid')
+            D = grid.attrib
+
+        else:
+            D = self.parent.attrib
+        D[key] = value
 
 
 def toXML(source):
-    tokens = list(Scanner().tokenize(source))
-    macros, elements = Parser().parse(tokens)
-    return ASTsToElementTree(macros).convert(elements)
+    tokens = Scanner().tokenize(source)
+    elements = Parser().parse(tokens)
+    macros = elements.next()
+    return list(Formatter(macros).convert(elements))
 
 
 #########################################################################
