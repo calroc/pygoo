@@ -5,7 +5,7 @@ pygoo.py - Render a widget spec to Tkinter widgets.
 
     pygoo is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
+    the Free Software Foundation; either version 3 of the License, or
     (at your option) any later version.
 
     This program is distributed in the hope that it will be useful,
@@ -14,8 +14,7 @@ pygoo.py - Render a widget spec to Tkinter widgets.
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 '''
 import Tkinter
@@ -142,7 +141,7 @@ class Parser(GenericParser):
     def __init__(self, start='begin'):
         GenericParser.__init__(self, start)
 
-    def parse(self, tokens):
+    def iterparse(self, tokens):
         tokens = iter(tokens)
         accumulator = []
 
@@ -266,7 +265,13 @@ class Parser(GenericParser):
 
 class Formatter:
 
-    _GRID_SETTINGS = set('sticky row column rowspan columnspan'.split())
+    _GRID_SETTINGS = set('''
+        sticky
+        ipadx ipady
+        padx pady
+        row column
+        rowspan columnspan
+        '''.split())
 
     def __init__(self, macros):
         self.macros = dict(eq.tag for eq in macros)
@@ -314,8 +319,8 @@ class Formatter:
 
 def toXML(source):
     tokens = Scanner().tokenize(source)
-    elements = Parser().parse(tokens)
-    macros = elements.next()
+    tokens = list(tokens)
+    macros, elements = Parser().parse(tokens)
     return list(Formatter(macros).convert(elements))
 
 
