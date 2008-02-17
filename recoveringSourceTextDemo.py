@@ -41,11 +41,10 @@ label
 '''
 
 
-asts = Parser().parse(Scanner().tokenize(source))
-
-
-macros = asts.next()
+tokens = list(Scanner().tokenize(source))
+macros, asts = Parser().parse(tokens)
 ets = Formatter(macros).convert(asts)
+
 
 for et in ets:
 
