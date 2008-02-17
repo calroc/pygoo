@@ -1,0 +1,41 @@
+Pygoo README
+
+http://www.pygoo.com/
+
+This software bundle is released under the GPL version 3 (see gpl.txt,
+included) and contains the following files:
+
+README - this file.
+pygoo.py - the main pygoo module.  Include this in your code.
+spark.py - the parser module, built-in in Python 2.5.1 and higher.
+
+gpl.txt - GPL version 3.
+
+Demos:
+    bindingDemo.py - binding callback functions automatically.
+    iterableDemo.py - iterable widget-creation "pipeline".
+    recoveringSourceTextDemo.py - XML objects remember their source.
+    simpleDemo.py - basic usage of toXML() and realize() functions.
+
+
+The pygoo module is dependant on ElementTree [1] which is included in
+Python version 2.5 and greater,  you'll need to install it [2] if you're
+using an earlier version of Python.  The pygoo.py module tries to import
+the ElementTree package from 'xml.etree.ElementTree', the 2.5 default,
+and then 'elementtree.ElementTree'.  If it can't be located under one of
+those two "paths" then you'll have to edit the import statement in
+pygoo.py to relflect the correct package path.
+
+Pygoo is also dependant on John Aycock's SPARK (Scanning, Parsing, and
+Rewriting Kit) [3] which is included in Python 2.5.1, but if you're using
+an ealier version of Python you'll have to include the spark.py module in
+your code along with the pygoo.py module.
+
+Thanks, and enjoy,
+~Simon Forman
+
+For more please visit http://www.pygoo.com/
+
+[1] http://docs.python.org/lib/module-xml.etree.ElementTree.html
+[2] http://effbot.org/zone/element-index.htm
+[3] http://pages.cpsc.ucalgary.ca/~aycock/spark/
