@@ -48,7 +48,7 @@ def printIter(iterable, indent=''):
 tokens = Scanner().tokenize(source)
 tokens = printIter(tokens)
 
-asts = Parser().parse(tokens)
+asts = Parser().iterparse(tokens)
 asts = printIter(asts, '    ')
 
 macros = asts.next()
