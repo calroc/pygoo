@@ -1,5 +1,7 @@
 '''
-pygoo.py - Render a widget spec to Tkinter widgets.
+pygoo.py - Version 0.1 - Render a widget spec to Tkinter widgets.
+
+    Please see: http://www.pygoo.com/
 
     Copyright (C) 2008 Simon Forman.
 
