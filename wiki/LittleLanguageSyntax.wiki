@@ -30,3 +30,7 @@ equate ::= something = something
 
 == Additionally ==
 *widget_types* are case-INsensitive;  *macros* are substituted for values of *equates* in each *element*; whitespace is not syntactically significant, you can indent your text as you like, you can even put things all on one line...
+
+Any [http://infohost.nmt.edu/tcc/help/pubs/tkinter/grid.html options from the grid layout manager] can be included and they'll be picked out and applied to the widget's gridding.
+
+See the demos (included in the source) for more info.
